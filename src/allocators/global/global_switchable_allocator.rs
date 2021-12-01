@@ -1,7 +1,7 @@
 use crate::allocators::allocator::Allocator;
 use crate::allocators::global::current_allocator_in_use::CurrentAllocatorInUse;
 use crate::allocators::global::local_allocator::LocalAllocator;
-use std::alloc::{AllocRef, GlobalAlloc};
+use std::alloc::{Allocator as AllocRef, GlobalAlloc};
 
 /// A trait that all such allocators implement.
 ///

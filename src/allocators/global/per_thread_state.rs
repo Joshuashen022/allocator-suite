@@ -17,7 +17,7 @@ impl<CoroutineLocalAllocator: LocalAllocator, ThreadLocalAllocator: LocalAllocat
 {
     #[doc(hidden)]
     #[inline(always)]
-    pub const fn empty() -> Self {
+    pub fn empty() -> Self {
         Self {
             current_allocator_in_use: CurrentAllocatorInUse::Global,
             coroutine_local_allocator: None,
@@ -27,7 +27,7 @@ impl<CoroutineLocalAllocator: LocalAllocator, ThreadLocalAllocator: LocalAllocat
 
     #[doc(hidden)]
     #[inline(always)]
-    pub const fn thread_local_first() -> Self {
+    pub fn thread_local_first() -> Self {
         Self {
             current_allocator_in_use: CurrentAllocatorInUse::ThreadLocal,
             coroutine_local_allocator: None,

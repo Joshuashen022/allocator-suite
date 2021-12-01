@@ -43,7 +43,7 @@ macro_rules! switchable_allocator {
 
             /// Std imports
             use std::num::NonZeroUsize;
-            use std::alloc::{AllocRef, AllocError, GlobalAlloc, Layout, System};
+            use std::alloc::{Allocator as AllocRef, AllocError as AllocErr , GlobalAlloc, Layout, System};
             use std::mem::replace;
 
             /// Effectively this is a field of `SwitchableAllocator` with a different value for each thread.
@@ -76,7 +76,7 @@ macro_rules! switchable_allocator {
                     &self,
                     non_zero_size: NonZeroUsize,
                     non_zero_power_of_two_alignment: NonZeroUsize,
-                ) -> Result<MemoryAddress, AllocError> {
+                ) -> Result<MemoryAddress, AllocErr> {
                     use allocator_suite::allocators::global::current_allocator_in_use::CurrentAllocatorInUse::*;
 
                     match self.save_current_allocator_in_use() {
@@ -120,7 +120,7 @@ macro_rules! switchable_allocator {
                     non_zero_power_of_two_alignment: NonZeroUsize,
                     non_zero_current_size: NonZeroUsize,
                     current_memory: MemoryAddress,
-                ) -> Result<MemoryAddress, AllocError> {
+                ) -> Result<MemoryAddress, AllocErr> {
                     choose_allocator!(
                         self,
                         current_memory,
@@ -139,7 +139,7 @@ macro_rules! switchable_allocator {
                     non_zero_power_of_two_alignment: NonZeroUsize,
                     non_zero_current_size: NonZeroUsize,
                     current_memory: MemoryAddress,
-                ) -> Result<MemoryAddress, AllocError> {
+                ) -> Result<MemoryAddress, AllocErr> {
                     choose_allocator!(
                         self,
                         current_memory,

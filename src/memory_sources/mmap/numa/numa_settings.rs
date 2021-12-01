@@ -30,13 +30,14 @@ impl NumaSettings {
     #[inline(always)]
     pub fn new(allocation_policy: NumaAllocationPolicy, strict: bool) -> Self {
         let (policy, (mode_flags, mbind_nodemask, mbind_maxnode)) = allocation_policy.values();
+        // (4, (0, None, 0))
         let mbind_mode = policy | mode_flags;
 
         Self {
-            mbind_mode,
-            mbind_nodemask,
-            mbind_maxnode,
-            mbind_flags: Self::mbind_flags(strict),
+            mbind_mode,         // 4
+            mbind_nodemask,     // None
+            mbind_maxnode,      // 0
+            mbind_flags: Self::mbind_flags(strict), // 0
         }
     }
 
@@ -81,7 +82,7 @@ impl NumaSettings {
     pub(crate) fn post_allocate(
         &self,
         current_memory: MemoryAddress,
-    ) -> Result<MemoryAddress, AllocError> {
+    ) -> Result<MemoryAddress, AllocErr> {
         Ok(current_memory)
     }
 

@@ -1,7 +1,7 @@
 use crate::adaptors::allocator_adaptor::AllocatorAdaptor;
 
 use crate::extensions::non_null_pointer::non_null_pointer;
-use crate::extensions::prelude::*;
+// use crate::extensions::prelude::*;
 use crate::extensions::usize_ext::UsizeExt;
 use crate::memory_address::MemoryAddress;
 use std::alloc::{AllocError, Layout};
@@ -16,7 +16,7 @@ pub trait Allocator: Debug + Sized {
     const ZERO_SIZED_ALLOCATION: MemoryAddress = non_null_pointer(::std::usize::MAX as *mut u8);
 
     /// Allocate memory.
-    fn allocate(
+    fn allocate( //AllocatorAdaptor // MemoryMapAllocator
         &self,
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
