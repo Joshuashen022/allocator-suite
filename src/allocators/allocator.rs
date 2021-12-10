@@ -16,7 +16,8 @@ pub trait Allocator: Debug + Sized {
     const ZERO_SIZED_ALLOCATION: MemoryAddress = non_null_pointer(::std::usize::MAX as *mut u8);
 
     /// Allocate memory.
-    fn allocate( //AllocatorAdaptor // MemoryMapAllocator
+    fn allocate(
+        //AllocatorAdaptor // MemoryMapAllocator
         &self,
         non_zero_size: NonZeroUsize,
         non_zero_power_of_two_alignment: NonZeroUsize,
@@ -160,9 +161,38 @@ pub trait Allocator: Debug + Sized {
 
     #[doc(hidden)]
     #[inline(always)]
+    unsafe fn global_alloc_alloc_memory_address(
+        &self,
+        layout: Layout,
+    ) -> Result<MemoryAddress, AllocError> {
+        let maybe_zero_size = layout.size();
+
+        if unlikely!(maybe_zero_size == 0) {
+            return Err(AllocError);
+        }
+
+        let non_zero_usize = NonZeroUsize::new_unchecked(maybe_zero_size);
+
+        let non_zero_align = layout.align().non_zero();
+        self.allocate(non_zero_usize, non_zero_align)
+    }
+    // Result<MemoryAddress, AllocError>
+
+    #[doc(hidden)]
+    #[inline(always)]
     unsafe fn global_alloc_alloc_zeroed(&self, layout: Layout) -> *mut u8 {
         transmute(self.allocate_zeroed(layout))
     }
+
+    #[doc(hidden)]
+    #[inline(always)]
+    unsafe fn global_alloc_alloc_zeroed_memory_address(
+        &self,
+        layout: Layout,
+    ) -> Result<MemoryAddress, AllocError> {
+        self.allocate_zeroed(layout)
+    }
+    // Result<MemoryAddress, AllocError>
 
     #[doc(hidden)]
     #[inline(always)]
@@ -194,6 +224,20 @@ pub trait Allocator: Debug + Sized {
 
         transmute(self.reallocate(NonNull::new_unchecked(ptr), layout, new_size))
     }
+
+    #[doc(hidden)]
+    #[inline(always)]
+    unsafe fn global_alloc_realloc_memory_address(
+        &self,
+        ptr: *mut u8,
+        layout: Layout,
+        new_size: usize,
+    ) -> Result<MemoryAddress, AllocError> {
+        debug_assert_ne!(ptr, null_mut(), "ptr should never be null");
+
+        self.reallocate(NonNull::new_unchecked(ptr), layout, new_size)
+    }
+    // Result<MemoryAddress, AllocError>
 
     #[doc(hidden)]
     #[inline(always)]

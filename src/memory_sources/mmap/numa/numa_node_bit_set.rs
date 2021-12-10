@@ -1,13 +1,11 @@
-use std::mem::size_of;
-
 /// NUMA nodes to allocate on.
 ///
 /// If set to no nodes (the `Default::default()`) then memory is allocated on the local node if possible.
 ///
 /// Ignored on operating systems other than Android and Linux.
-#[derive(Default, Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
 pub struct NumaNodeBitSet {
-    bits: usize,
+    pub(crate) bits: usize,
 
     /// Specifies physical node IDs.
     ///
@@ -25,6 +23,36 @@ pub struct NumaNodeBitSet {
 impl NumaNodeBitSet {
     #[allow(dead_code)]
     pub const NO_MODE_FLAGS_NODEMASK_MAXNODE: (i32, Option<usize>, usize) = (0, None, 0);
+
+    /// Generate an empty struct
+    #[inline(always)]
+    pub fn new() -> Self {
+        NumaNodeBitSet {
+            bits: 0,
+            static_nodes: false,
+            relative_nodes: false,
+        }
+    }
+
+    /// Generate a static struct
+    #[inline(always)]
+    pub fn new_static() -> Self {
+        NumaNodeBitSet {
+            bits: 0,
+            static_nodes: true,
+            relative_nodes: false,
+        }
+    }
+
+    /// Generate a relative struct
+    #[inline(always)]
+    pub fn new_relative(&self) -> Self {
+        NumaNodeBitSet {
+            bits: 0,
+            static_nodes: false,
+            relative_nodes: true,
+        }
+    }
 
     /// Is this the empty set?
     #[inline(always)]
@@ -50,7 +78,7 @@ impl NumaNodeBitSet {
         if likely!(self.is_empty()) {
             Self::NO_MODE_FLAGS_NODEMASK_MAXNODE
         } else {
-            let size = size_of::<usize>();
+            // let size = size_of::<usize>();
 
             let mut mode_flags = 0;
             if unlikely!(self.static_nodes) {
@@ -62,7 +90,7 @@ impl NumaNodeBitSet {
                 mode_flags |= MPOL_F_RELATIVE_NODES
             }
 
-            (mode_flags, Some(self.bits), size + 1)
+            (mode_flags, Some(self.bits), 2 as usize)
         }
     }
 }

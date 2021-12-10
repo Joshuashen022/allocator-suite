@@ -109,14 +109,23 @@ impl MemoryMapSource {
                 NO_OFFSET,
             )
         };
+
         if unlikely!(result == MAP_FAILED) {
-            Err(AllocError)
+            panic!("mmap went error with flag {:?}", self.map_flags);
         } else {
-            #[cfg(any(target_os = "android", target_os = "linux"))]
-            self.madvise_memory(result, size)?;
+            // #[cfg(any(target_os = "android", target_os = "linux"))]
+            // match std::panic::catch_unwind(||{
+            //     self.madvise_memory(result, size)
+            // }) {
+            //     Ok(result) => result,
+            //     Err(_) => Err(AllocError),
+            // };
 
             #[cfg(any(target_os = "android", target_os = "linux"))]
-            self.numa_memory(result, size)?;
+            match std::panic::catch_unwind(|| self.numa_memory(result, size)) {
+                Ok(_) => (),
+                Err(_) => (),
+            };
 
             #[cfg(not(any(target_os = "android", target_os = "netbsd", target_os = "linux")))]
             self.mlock_memory(result, size)?;
@@ -127,12 +136,13 @@ impl MemoryMapSource {
 
     #[cfg(any(target_os = "android", target_os = "linux"))]
     #[inline(always)]
+    #[allow(dead_code)]
     fn madvise_memory(&self, address: *mut c_void, size: usize) -> Result<(), AllocError> {
         let result = unsafe { madvise(address, size, self.madvise_flags) };
         if likely!(result == 0) {
         } else if likely!(result == -1) {
             Self::munmap_memory(Self::cast_address(address), size);
-            return Err(AllocError);
+            panic!("madvise went wrong with flag {:?}", self.madvise_flags);
         } else {
             unreachable!()
         }
@@ -149,7 +159,10 @@ impl MemoryMapSource {
                 let outcome = numa_settings.post_allocate(address, size);
                 if unlikely!(outcome.is_err()) {
                     Self::munmap_memory(Self::cast_address(address), size);
-                    return Err(AllocError);
+                    panic!(
+                        "mbind went with error with numa setting {:?}",
+                        numa_settings
+                    );
                 }
                 Ok(())
             }
@@ -225,6 +238,9 @@ impl MemoryMapSource {
 
     #[inline(always)]
     fn cast_address(address: *mut c_void) -> MemoryAddress {
+        // let ptr = address.cast::<u8>();
+        // let (a, _) = ptr.to_raw_parts();
+        // let a_void = a as *mut c_void;
         address.cast::<u8>().non_null()
     }
 

@@ -30,8 +30,11 @@ impl Allocator for MemoryMapAllocator {
         if unlikely!(non_zero_power_of_two_alignment.get() > ASSUMED_PAGE_SIZE) {
             return Err(AllocError);
         }
-
-        self.0.mmap_memory(non_zero_size.get())
+        match std::panic::catch_unwind(|| self.0.mmap_memory(non_zero_size.get())) {
+            Ok(addr) => addr,
+            Err(_) => Err(AllocError),
+        }
+        // self.0.mmap_memory(non_zero_size.get())
     }
 
     #[inline(always)]

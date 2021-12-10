@@ -34,9 +34,9 @@ impl NumaSettings {
         let mbind_mode = policy | mode_flags;
 
         Self {
-            mbind_mode,         // 4
-            mbind_nodemask,     // None
-            mbind_maxnode,      // 0
+            mbind_mode,                             // 4
+            mbind_nodemask,                         // None
+            mbind_maxnode,                          // 0
             mbind_flags: Self::mbind_flags(strict), // 0
         }
     }
@@ -103,6 +103,7 @@ impl NumaSettings {
     /// Returns zero or positive for success and a negative error number for failure.
     #[cfg(any(target_os = "android", target_os = "linux"))]
     #[inline(always)]
+    #[allow(deprecated)]
     fn mbind(
         start: *mut c_void,
         len: usize,

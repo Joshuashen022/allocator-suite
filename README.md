@@ -28,9 +28,19 @@ switchable_allocator!(
     GlobalAllocToAllocatorAdaptor(System)
 );
 ``` 
-
-
 ## Usage2
+See `example\numa_test`
+```
+    const  ONE_GIB : usize = 1 << 30;
+    let ptr = allocator_suite::simple_use::simple_alloicate_memory_address(ONE_GIB, true, Some(1)).unwrap();
+    let time = time::Duration::from_secs(20);
+    println!("{:?}", ptr);
+    thread::sleep(time);
+    println!("the END");
+
+```
+
+## Usage3
 
 Use memory map to create a `[u8]` pointer by calling `simple_alloicate(size: usize)` and 
 deallocate it with `simple_dealloicate(ptr: *mut u8, size: usize)`. 

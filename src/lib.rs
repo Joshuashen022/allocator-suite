@@ -6,6 +6,7 @@
 #![feature(llvm_asm)]
 #![feature(nonnull_slice_from_raw_parts)]
 
+mod allocator_instance;
 /// Path prediction macros for likely/unlikely intrinsics
 #[macro_use]
 pub mod likeliness;
@@ -26,6 +27,8 @@ pub mod memory_sources;
 
 /// Type alias of memory address
 pub mod memory_address;
+
+pub mod simple_use;
 
 pub mod prelude {
     pub use crate::adaptors::prelude::*;
